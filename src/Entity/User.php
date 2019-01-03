@@ -174,7 +174,8 @@ class User implements UserInterface
             "firstname" => $this->getFirstname(),
             "lastname" => $this->getLastname(),
             "email" => $this->getEmail(),
-            "roles" => $this->getRoles()
+            "roles" => $this->getRoles(),
+            "apiToken" => $this->getApiToken()
         ];
     }
 
