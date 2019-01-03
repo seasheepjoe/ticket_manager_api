@@ -48,7 +48,7 @@ class SecurityController extends AbstractController
         $newUser->setCreatedAt(new \DateTime());
         $encodedPassword = $encoder->encodePassword($newUser, $data["password"]);
         $newUser->setPassword($encodedPassword);
-
+        $newUser->setApiToken(bin2hex(random_bytes(64)));
         $entityManager->persist($newUser);
         $entityManager->flush();
 
