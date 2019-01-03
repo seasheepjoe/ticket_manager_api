@@ -173,6 +173,7 @@ class User implements UserInterface
             "id" => $this->getId(),
             "firstname" => $this->getFirstname(),
             "lastname" => $this->getLastname(),
+            "fullname" => $this->getFullname(),
             "email" => $this->getEmail(),
             "roles" => $this->getRoles(),
             "apiToken" => $this->getApiToken()
@@ -189,5 +190,10 @@ class User implements UserInterface
         $this->apiToken = $apiToken;
 
         return $this;
+    }
+
+    public function getFullname(): ?string
+    {
+        return $this->getFirstname() . " " . $this->getLastname();
     }
 }
