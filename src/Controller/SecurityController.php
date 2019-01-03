@@ -14,12 +14,39 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="login", methods={"POST"})
      */
-    public function login(Request $request)
+    public function login(Request $request, UserPasswordEncoderInterface $encoder)
     {
         $data = json_decode($request->getContent(), true);
+        $entityManager = $this->getDoctrine()->getManager();
+        $userRepo = $entityManager->getRepository(User::class);
+        
+        if (!isset($data["email"]) || !isset($data["password"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
+        $user = $userRepo->findOneBy(["email" => $data["email"]]);
+
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "invalid_email"
+            ]);
+        }
+
+        if (!$encoder->isPasswordValid($user, $data["password"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "invalid_password"
+            ]);
+        }
+
+
         return new JsonResponse([
-            "status" => "login",
-            "data" => $data
+            "status" => "success",
+            "user" => $user->getInfo()
         ]);
     }
 
