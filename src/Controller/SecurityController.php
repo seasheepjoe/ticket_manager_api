@@ -32,6 +32,13 @@ class SecurityController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $userRepo = $entityManager->getRepository(User::class);
 
+        if (!isset($data["firstname"]) || !isset($data["lastname"]) || !isset($data["email"]) || !isset($data["password"]) || !isset($data["password_check"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
         if ($userRepo->findOneBy(['email' => $data['email']])) {
             return new JsonResponse([
                 "status" => "error",
@@ -39,7 +46,12 @@ class SecurityController extends AbstractController
             ]);
         }
 
-        // other checks to do.
+        if ($data['password'] != $data['password_check']) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "passwords_not_match"
+            ]);
+        }
 
         $newUser = new User();
         $newUser->setFirstname($data["firstname"]);
