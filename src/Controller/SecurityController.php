@@ -43,7 +43,6 @@ class SecurityController extends AbstractController
             ]);
         }
 
-
         return new JsonResponse([
             "status" => "success",
             "user" => $user->getInfo()
