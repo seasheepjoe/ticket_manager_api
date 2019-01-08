@@ -184,14 +184,9 @@ class Ticket
     public function getInfo()
     {
         $contributorsArray = [];
-        $messagesArray = [];
 
         foreach($this->getContributors() as $user) {
             $contributorsArray[] = $user->getInfo();
-        }
-
-        foreach($this->getMessages() as $message) {
-            $messagesArray[] = $message->getInfo();
         }
 
         return [
@@ -201,8 +196,7 @@ class Ticket
             "status" => $this->getStatus(),
             "created_at" => $this->getCreatedAt(),
             "updated_at" => $this->getUpdatedAt(),
-            "contributors" => $contributorsArray,
-            "messages" => $messagesArray
+            "contributors" => $contributorsArray
         ];
     }
 }

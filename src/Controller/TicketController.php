@@ -17,7 +17,19 @@ class TicketController extends AbstractController
      */
     public function index(Request $request)
     {
-        $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll();
+        $user = $this->getUser();
+        $tickets = $user->getTickets();
+        $ticketsArray = [];
+
+        foreach($tickets as $ticket) {
+            $ticketsArray[] = $ticket->getInfo();
+        }
+        $tickets = $ticketsArray;
+    
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
+            $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll();
+        }
+
         foreach($tickets as $key => $ticket) {
             $tickets[$key] = $ticket->getInfo();
         }
@@ -44,12 +56,42 @@ class TicketController extends AbstractController
         $newTicket->setUpdatedAt(new \DateTime());
         $newTicket->setStatus('opened');
         $newTicket->addContributor($user);
+        $newTicket->setTitle("React native is the problem");
+        $user->addTicket($newTicket);
         $entityManager->persist($newTicket);
         $entityManager->flush();
 
         return new JsonResponse([
             "status" => "success",
             "ticket" => $newTicket->getInfo()
+        ]);
+    }
+
+    /**
+     * @Route("/tickets/get/{id}", name="get-ticket", methods={"GET"}, requirements={"id"="\d+"})
+     */
+    public function getTicket(Request $request, $id)
+    {
+        $user = $this->getUser();
+        $ticketRepo = $this->getDoctrine()->getManager()->getRepository(Ticket::class);
+        $ticket = $ticketRepo->find($id);
+
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "ticket_not_found"
+            ]);
+        }
+
+        $messagesArray = [];
+        foreach($ticket->getMessages() as $msg) {
+            $messagesArray[] = $msg->getInfo();
+        }
+
+        return new JsonResponse([
+            "status" => "success",
+            "ticket" => $ticket->getInfo(),
+            "messages" => $messagesArray
         ]);
     }
 }
