@@ -33,6 +33,7 @@ class TicketController extends AbstractController
      */
     public function new(Request $request)
     {
+        $data = json_decode($request->getContent(), true);
         $entityManager = $this->getDoctrine()->getManager();
         $ticketRepo = $entityManager->getRepository(Ticket::class);
 

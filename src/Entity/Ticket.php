@@ -43,9 +43,20 @@ class Ticket
      */
     private $contributors;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Message", mappedBy="ticket")
+     */
+    private $messages;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $title;
+
     public function __construct()
     {
         $this->contributors = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -127,22 +138,71 @@ class Ticket
         return $this;
     }
 
+    /**
+     * @return Collection|Message[]
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages[] = $message;
+            $message->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->contains($message)) {
+            $this->messages->removeElement($message);
+            // set the owning side to null (unless already changed)
+            if ($message->getTicket() === $this) {
+                $message->setTicket(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
     public function getInfo()
     {
         $contributorsArray = [];
-        $contributors = $this->getContributors();
-        
-        foreach($contributors as $user) {
+        $messagesArray = [];
+
+        foreach($this->getContributors() as $user) {
             $contributorsArray[] = $user->getInfo();
+        }
+
+        foreach($this->getMessages() as $message) {
+            $messagesArray[] = $message->getInfo();
         }
 
         return [
             "id" => $this->getId(),
+            "title" => $this->getTitle(),
             "author" => $this->getAuthor()->getInfo(),
             "status" => $this->getStatus(),
             "created_at" => $this->getCreatedAt(),
             "updated_at" => $this->getUpdatedAt(),
-            "contributors" => $contributorsArray
+            "contributors" => $contributorsArray,
+            "messages" => $messagesArray
         ];
     }
 }
