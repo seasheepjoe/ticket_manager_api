@@ -13,18 +13,22 @@ use App\Entity\Ticket;
 class TicketController extends AbstractController
 {
     /**
-     * @Route("/", name="all-tickets", methods={"GET"})
+     * @Route("/tickets", name="all-tickets", methods={"GET"})
      */
     public function index(Request $request)
     {
+        $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll();
+        foreach($tickets as $key => $ticket) {
+            $tickets[$key] = $ticket->getInfo();
+        }
         return new JsonResponse([
             "status" => "success",
-            "tickets" => $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll()
+            "tickets" => $tickets
         ]);
     }
 
     /**
-     * @Route("/new", name="new-ticket")
+     * @Route("/tickets/new", name="new-ticket")
      */
     public function new(Request $request)
     {
@@ -33,7 +37,7 @@ class TicketController extends AbstractController
 
         $user = $this->getUser();
         $newTicket = new Ticket();
-        $newTicket->setAuthor($user->getId());
+        $newTicket->setAuthor($user);
         $newTicket->setCreatedAt(new \DateTime());
         $newTicket->setUpdatedAt(new \DateTime());
         $newTicket->setStatus('opened');

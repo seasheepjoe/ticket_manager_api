@@ -22,11 +22,6 @@ class Ticket
     private $status;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $author;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $created_at;
@@ -35,6 +30,11 @@ class Ticket
      * @ORM\Column(type="datetime")
      */
     private $updated_at;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tickets")
+     */
+    private $author;
 
     public function getId(): ?int
     {
@@ -49,18 +49,6 @@ class Ticket
     public function setStatus(string $status): self
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function getAuthor(): ?int
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(int $author): self
-    {
-        $this->author = $author;
 
         return $this;
     }
@@ -89,11 +77,23 @@ class Ticket
         return $this;
     }
 
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): self
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
     public function getInfo()
     {
         return [
             "id" => $this->getId(),
-            "author" => $this->getAuthor(),
+            "author" => $this->getAuthor()->getInfo(),
             "status" => $this->getStatus(),
             "created_at" => $this->getCreatedAt(),
             "updated_at" => $this->getUpdatedAt()
