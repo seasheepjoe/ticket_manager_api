@@ -60,9 +60,15 @@ class User implements UserInterface
      */
     private $tickets;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Ticket", mappedBy="contributors")
+     */
+    private $contribute_to;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
+        $this->contribute_to = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,6 +241,34 @@ class User implements UserInterface
             if ($ticket->getAuthor() === $this) {
                 $ticket->setAuthor(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Ticket[]
+     */
+    public function getContributeTo(): Collection
+    {
+        return $this->contribute_to;
+    }
+
+    public function addContributeTo(Ticket $contributeTo): self
+    {
+        if (!$this->contribute_to->contains($contributeTo)) {
+            $this->contribute_to[] = $contributeTo;
+            $contributeTo->addContributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContributeTo(Ticket $contributeTo): self
+    {
+        if ($this->contribute_to->contains($contributeTo)) {
+            $this->contribute_to->removeElement($contributeTo);
+            $contributeTo->removeContributor($this);
         }
 
         return $this;

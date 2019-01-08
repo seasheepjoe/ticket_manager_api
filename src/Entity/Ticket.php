@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -35,6 +37,16 @@ class Ticket
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tickets")
      */
     private $author;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="contribute_to")
+     */
+    private $contributors;
+
+    public function __construct()
+    {
+        $this->contributors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,14 +101,48 @@ class Ticket
         return $this;
     }
 
+    /**
+     * @return Collection|User[]
+     */
+    public function getContributors(): Collection
+    {
+        return $this->contributors;
+    }
+
+    public function addContributor(User $contributor): self
+    {
+        if (!$this->contributors->contains($contributor)) {
+            $this->contributors[] = $contributor;
+        }
+
+        return $this;
+    }
+
+    public function removeContributor(User $contributor): self
+    {
+        if ($this->contributors->contains($contributor)) {
+            $this->contributors->removeElement($contributor);
+        }
+
+        return $this;
+    }
+
     public function getInfo()
     {
+        $contributorsArray = [];
+        $contributors = $this->getContributors();
+        
+        foreach($contributors as $user) {
+            $contributorsArray[] = $user->getInfo();
+        }
+
         return [
             "id" => $this->getId(),
             "author" => $this->getAuthor()->getInfo(),
             "status" => $this->getStatus(),
             "created_at" => $this->getCreatedAt(),
-            "updated_at" => $this->getUpdatedAt()
+            "updated_at" => $this->getUpdatedAt(),
+            "contributors" => $contributorsArray
         ];
     }
 }

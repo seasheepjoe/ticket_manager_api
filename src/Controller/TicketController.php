@@ -21,6 +21,7 @@ class TicketController extends AbstractController
         foreach($tickets as $key => $ticket) {
             $tickets[$key] = $ticket->getInfo();
         }
+
         return new JsonResponse([
             "status" => "success",
             "tickets" => $tickets
@@ -41,6 +42,7 @@ class TicketController extends AbstractController
         $newTicket->setCreatedAt(new \DateTime());
         $newTicket->setUpdatedAt(new \DateTime());
         $newTicket->setStatus('opened');
+        $newTicket->addContributor($user);
         $entityManager->persist($newTicket);
         $entityManager->flush();
 
