@@ -193,7 +193,7 @@ class User implements UserInterface
             "lastname" => $this->getLastname(),
             "fullname" => $this->getFullname(),
             "email" => $this->getEmail(),
-            "roles" => $this->getRoles(),
+            "is_admin" => in_array('ROLE_ADMIN', $this->getRoles()),
             "apiToken" => $this->getApiToken()
         ];
     }
