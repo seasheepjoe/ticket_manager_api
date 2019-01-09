@@ -30,10 +30,9 @@ class TicketController extends AbstractController
     
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll();
-        }
-
-        foreach($tickets as $key => $ticket) {
-            $tickets[$key] = $ticket->getInfo();
+            foreach($tickets as $key => $ticket) {
+                $tickets[$key] = $ticket->getInfo();
+            }
         }
 
         return new JsonResponse([
@@ -58,7 +57,7 @@ class TicketController extends AbstractController
         $newTicket->setUpdatedAt(new \DateTime());
         $newTicket->setStatus('opened');
         $newTicket->addContributor($user);
-        $newTicket->setTitle("React native is the problem");
+        $newTicket->setTitle($data["ticket_title"]);
         $user->addTicket($newTicket);
         $entityManager->persist($newTicket);
         $entityManager->flush();
