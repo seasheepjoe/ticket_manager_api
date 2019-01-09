@@ -294,7 +294,6 @@ class TicketController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
         $ticketRepo = $em->getRepository(Ticket::class);
-        $userRepo = $em->getRepository(User::class);
         $messageRepo = $em->getRepository(Message::class);
 
         if (!isset($data["ticket_id"]) || !isset($data["message_id"])) {
@@ -326,6 +325,58 @@ class TicketController extends AbstractController
 
         return new JsonResponse([
             "status" => "success"
+        ]);
+    }
+
+    /**
+     * @Route("/tickets/messages/edit", name="edit-message", methods={"POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function editMessage(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticketRepo = $em->getRepository(Ticket::class);
+        $messageRepo = $em->getRepository(Message::class);
+
+        if (!isset($data["ticket_id"]) || !isset($data["message_id"]) || !isset($data["message_content"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
+        $ticket = $ticketRepo->find($data["ticket_id"]);
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_ticket"
+            ]);
+        }
+
+        $message = $messageRepo->find($data["message_id"]);
+        if ($message === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "message_not_found"
+            ]);
+        }
+
+        $isMessageInTicket = $ticket->getMessages()->contains($message);
+        if (!$isMessageInTicket) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "message_not_in_ticket"
+            ]);
+        }
+
+        $message->setContent($data["message_content"]);
+        $em->persist($message);
+        $em->flush();
+
+        return new JsonResponse([
+            "status" => "success",
+            "message" => $message->getInfo()
         ]);
     }
 }
