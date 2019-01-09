@@ -284,4 +284,48 @@ class TicketController extends AbstractController
             "message" => $message->getInfo()
         ]);
     }
+
+    /**
+     * @Route("/tickets/messages/remove", name="remove-message", methods={"POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function removeMessage(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticketRepo = $em->getRepository(Ticket::class);
+        $userRepo = $em->getRepository(User::class);
+        $messageRepo = $em->getRepository(Message::class);
+
+        if (!isset($data["ticket_id"]) || !isset($data["message_id"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
+        $ticket = $ticketRepo->find($data["ticket_id"]);
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_ticket"
+            ]);
+        }
+
+        $message = $messageRepo->find($data["message_id"]);
+        if ($message === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "message_not_found"
+            ]);
+        }
+
+        $ticket->removeMessage($message);
+        $em->persist($ticket);
+        $em->flush();
+
+        return new JsonResponse([
+            "status" => "success"
+        ]);
+    }
 }
