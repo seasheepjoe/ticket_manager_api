@@ -152,5 +152,55 @@ class TicketController extends AbstractController
             "data" => $ticket->getInfo()
         ]);
     }
+
+    /**
+     * @Route("/tickets/contributors/add", name="add-contributor", methods={"POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function addContributor(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticketRepo = $em->getRepository(Ticket::class);
+        $userRepo = $em->getRepository(User::class);
+
+        $ticket = $ticketRepo->find($data["ticket_id"]);
+        
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_ticket"
+            ]);
+        }
+
+        $contributors = $ticket->getContributors();
+
+        $user = $userRepo->find($data["contributor_id"]);
+
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_user"
+            ]);
+        }
+
+        $isUserContributor = $contributors->contains($user);
+
+        if ($isUserContributor) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "user_is_already_contributing"
+            ]);
+        }
+
+        $ticket->addContributor($user);
+        $em->persist($ticket);
+        $em->flush();
+ 
+        return new JsonResponse([
+            "status" => "success",
+            "data" => $ticket->getInfo()
+        ]);
+    }
     
 }
