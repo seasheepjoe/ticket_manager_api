@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Entity\User;
 use App\Entity\Ticket;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class TicketController extends AbstractController
 {
@@ -94,4 +95,62 @@ class TicketController extends AbstractController
             "messages" => $messagesArray
         ]);
     }
+
+    /**
+     * @Route("/tickets/contributors/remove", name="remove-contributor", methods={"POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function removeContributor(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticketRepo = $em->getRepository(Ticket::class);
+        $userRepo = $em->getRepository(User::class);
+
+        $ticket = $ticketRepo->find($data["ticket_id"]);
+        
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_ticket"
+            ]);
+        }
+
+        $contributors = $ticket->getContributors();
+
+        if (empty($contributors)) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "no_contributors_in_ticket"
+            ]);
+        }
+
+        $user = $userRepo->find($data["contributor_id"]);
+
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_user"
+            ]);
+        }
+
+        $isUserContributor = $contributors->contains($user);
+
+        if (!$isUserContributor) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "user_not_contributor"
+            ]);
+        }
+
+        $ticket->removeContributor($user);
+        $em->persist($ticket);
+        $em->flush();
+ 
+        return new JsonResponse([
+            "status" => "success",
+            "data" => $ticket->getInfo()
+        ]);
+    }
+    
 }
