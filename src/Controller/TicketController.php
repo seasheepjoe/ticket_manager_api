@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Entity\User;
 use App\Entity\Ticket;
+use App\Entity\Message;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class TicketController extends AbstractController
@@ -113,7 +114,7 @@ class TicketController extends AbstractController
                 "message" => "missing_parameter"
             ]);
         }
-        
+
         $ticket = $ticketRepo->find($data["ticket_id"]);
         
         if ($ticket === null) {
@@ -216,4 +217,71 @@ class TicketController extends AbstractController
             "data" => $ticket->getInfo()
         ]);
     }    
+
+    /**
+     * @Route("/tickets/messages/add", name="add-message", methods={"POST"})
+     */
+    public function addMessage(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticketRepo = $em->getRepository(Ticket::class);
+        $userRepo = $em->getRepository(User::class);
+            
+        if (!isset($data["ticket_id"]) || !isset($data["message_content"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
+        if (empty($data["message_content"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "message_content_empty"
+            ]);
+        }
+
+        $ticket = $ticketRepo->find($data["ticket_id"]);
+
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_ticket"
+            ]);
+        }
+
+        $contributors = $ticket->getContributors();
+
+        $user = $this->getUser();
+
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "could_not_find_user"
+            ]);
+        }
+
+        $isUserContributor = $contributors->contains($user);
+
+        if (!$isUserContributor && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "not_contributing_to_ticket"
+            ]);
+        }
+
+        $message = new Message();
+        $message->setAuthor($user);
+        $message->setContent($data["message_content"]);
+        $message->setCreatedAt(new \DateTime);
+        $message->setTicket($ticket);
+        $em->persist($message);
+        $em->flush();
+        
+        return new JsonResponse([
+            "status" => "success",
+            "message" => $message->getInfo()
+        ]);
+    }
 }
