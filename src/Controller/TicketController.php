@@ -107,6 +107,13 @@ class TicketController extends AbstractController
         $ticketRepo = $em->getRepository(Ticket::class);
         $userRepo = $em->getRepository(User::class);
 
+        if (!isset($data["ticket_id"]) || !isset($data["contributor_id"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+        
         $ticket = $ticketRepo->find($data["ticket_id"]);
         
         if ($ticket === null) {
@@ -164,6 +171,13 @@ class TicketController extends AbstractController
         $ticketRepo = $em->getRepository(Ticket::class);
         $userRepo = $em->getRepository(User::class);
 
+        if (!isset($data["ticket_id"]) || !isset($data["contributor_id"])) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "missing_parameter"
+            ]);
+        }
+
         $ticket = $ticketRepo->find($data["ticket_id"]);
         
         if ($ticket === null) {
@@ -201,6 +215,5 @@ class TicketController extends AbstractController
             "status" => "success",
             "data" => $ticket->getInfo()
         ]);
-    }
-    
+    }    
 }
