@@ -63,6 +63,7 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Ticket", mappedBy="contributors")
+     * @ORM\OrderBy({"created_at" = "DESC"})
      */
     private $contribute_to;
 

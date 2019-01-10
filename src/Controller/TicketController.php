@@ -21,7 +21,7 @@ class TicketController extends AbstractController
     public function index(Request $request)
     {
         $user = $this->getUser();
-        $tickets = $user->getTickets();
+        $tickets = $user->getContributeTo();
         $ticketsArray = [];
 
         foreach($tickets as $ticket) {
@@ -276,7 +276,6 @@ class TicketController extends AbstractController
         }
 
         $ticket->addContributor($user);
-        $user->addTicket($ticket);
         $em->persist($ticket);
         $em->flush();
  
