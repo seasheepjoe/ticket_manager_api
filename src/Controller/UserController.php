@@ -4,16 +4,29 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Entity\User;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class UserController extends AbstractController
 {
     /**
-     * @Route("/user", name="user")
+     * @Route("/users/search", name="search-users", methods={"POST"})
+     * @IsGranted("ROLE_ADMIN")
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
+        $data = json_decode($request->getContent(), true);
+        $entityManager = $this->getDoctrine()->getManager();
+        $userRepo = $entityManager->getRepository(User::class);
+        
+        $users = $userRepo->findBy(['firstname' => $data['firstname']]);
+
+        return new JsonResponse([
+            "status" => "success",
+            "users" => $users
         ]);
     }
 }

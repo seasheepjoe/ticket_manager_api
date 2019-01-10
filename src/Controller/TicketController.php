@@ -29,7 +29,7 @@ class TicketController extends AbstractController
         $tickets = $ticketsArray;
     
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
-            $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findAll();
+            $tickets = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findBy([], ['created_at' => 'DESC']);
             foreach($tickets as $key => $ticket) {
                 $tickets[$key] = $ticket->getInfo();
             }
