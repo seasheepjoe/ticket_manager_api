@@ -272,7 +272,7 @@ class TicketController extends AbstractController
  
         return new JsonResponse([
             "status" => "success",
-            "data" => $ticket->getInfo()
+            "contributor" => $user->getInfo()
         ]);
     }    
 
