@@ -77,10 +77,24 @@ class TicketController extends AbstractController
         $ticketRepo = $this->getDoctrine()->getManager()->getRepository(Ticket::class);
         $ticket = $ticketRepo->find($id);
 
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "not_logged_in"
+            ]);
+        }
+
         if ($ticket === null) {
             return new JsonResponse([
                 "status" => "error",
                 "message" => "ticket_not_found"
+            ]);
+        }
+
+        if (!$ticket->getContributors()->contains($user) && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "not_contributing_to_ticket"
             ]);
         }
 
