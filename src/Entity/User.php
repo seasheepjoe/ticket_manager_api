@@ -200,7 +200,8 @@ class User implements UserInterface
             "fullname" => $this->getFullname(),
             "email" => $this->getEmail(),
             "is_admin" => in_array('ROLE_ADMIN', $this->getRoles()),
-            "apiToken" => $this->getApiToken()
+            "apiToken" => $this->getApiToken(),
+            "apiTokenExpiracy" => $this->getApiTokenExpiracy()
         ];
     }
 
