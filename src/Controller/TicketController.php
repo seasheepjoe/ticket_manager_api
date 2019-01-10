@@ -114,7 +114,7 @@ class TicketController extends AbstractController
     }
 
      /**
-     * @Route("/tickets/remove/{id}", name="remove-ticket", methods={"GET"}, requirements={"id"="\d+"})
+     * @Route("/tickets/remove/{id}", name="remove-ticket", methods={"DELETE"}, requirements={"id"="\d+"})
      * @IsGranted("ROLE_ADMIN")
      */
     public function remove(Request $request, $id)
