@@ -200,6 +200,15 @@ class TicketController extends AbstractController
             ]);
         }
 
+        $isContributorAuthor = $user === $ticket->getAuthor();
+
+        if ($isContributorAuthor) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "contributor_is_author"
+            ]);
+        }
+
         $ticket->removeContributor($user);
         $em->persist($ticket);
         $em->flush();
