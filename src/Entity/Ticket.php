@@ -44,7 +44,7 @@ class Ticket
     private $contributors;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Message", mappedBy="ticket")
+     * @ORM\OneToMany(targetEntity="App\Entity\Message", mappedBy="ticket", orphanRemoval=true)
      * @ORM\OrderBy({"created_at" = "DESC"})
      */
     private $messages;
