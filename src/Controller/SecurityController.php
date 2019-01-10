@@ -95,4 +95,24 @@ class SecurityController extends AbstractController
             "user" => $newUser->getInfo()
         ]);
     }
+
+    /**
+     * @Route("/auth/check", name="check-auth", methods={"GET"})
+     */
+    public function checkAuth(Request $request)
+    {
+        $user = $this->getUser();
+        
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "not_logged_in"
+            ]);
+        }
+
+        return new JsonResponse([
+            "status" => "success",
+            "user" => $user->getInfo()
+        ]);
+    }
 }
