@@ -66,6 +66,11 @@ class User implements UserInterface
      */
     private $contribute_to;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $api_token_expiracy;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -271,6 +276,18 @@ class User implements UserInterface
             $this->contribute_to->removeElement($contributeTo);
             $contributeTo->removeContributor($this);
         }
+
+        return $this;
+    }
+
+    public function getApiTokenExpiracy(): ?\DateTimeInterface
+    {
+        return $this->api_token_expiracy;
+    }
+
+    public function setApiTokenExpiracy(?\DateTimeInterface $api_token_expiracy): self
+    {
+        $this->api_token_expiracy = $api_token_expiracy;
 
         return $this;
     }
