@@ -108,6 +108,25 @@ class SecurityController extends AbstractController
                 "status" => "error",
                 "message" => "not_logged_in"
             ]);
+        }   
+
+        $now = new \DateTime();
+        $token_expiracy = $user->getApiTokenExpiracy();
+        $token_expired = $token_expiracy < $now;
+
+        if ($token_expired) {
+            $em = $this->getDoctrine()->getManager();
+            $randomToken = bin2hex(random_bytes(64));
+            $user->setApiToken($randomToken);
+            $now = new \DateTime();
+            $newExpirationDate = $now->add(new \DateInterval('PT5H'));
+            $user->setApiTokenExpiracy($newExpirationDate);
+            $em->persist($user);
+            $em->flush();
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "token_expired"
+            ]);
         }
 
         return new JsonResponse([
