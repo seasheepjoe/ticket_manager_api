@@ -53,6 +53,11 @@ class TicketController extends AbstractController
         $ticketRepo = $entityManager->getRepository(Ticket::class);
 
         $user = $this->getUser();
+        $message = new Message();
+        $message->setContent($data["ticket_message"]);
+        $message->setCreatedAt(new \DateTime);
+        $message->setAuthor($user);
+        
         $newTicket = new Ticket();
         $newTicket->setAuthor($user);
         $newTicket->setCreatedAt(new \DateTime());
@@ -60,7 +65,10 @@ class TicketController extends AbstractController
         $newTicket->setStatus('opened');
         $newTicket->addContributor($user);
         $newTicket->setTitle($data["ticket_title"]);
+        $newTicket->addMessage($message);
         $user->addTicket($newTicket);
+        $newTicket->addMessage($message);
+        $entityManager->persist($message);
         $entityManager->persist($newTicket);
         $entityManager->flush();
 
