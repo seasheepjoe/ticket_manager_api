@@ -370,6 +370,7 @@ class TicketController extends AbstractController
         }
 
         $ticket->removeMessage($message);
+        $em->remove($message);
         $em->persist($ticket);
         $em->flush();
 
