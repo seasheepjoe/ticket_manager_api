@@ -218,6 +218,7 @@ class TicketController extends AbstractController
         }
 
         $ticket->removeContributor($user);
+        $user->removeTicket($ticket);
         $em->persist($ticket);
         $em->flush();
  
@@ -275,6 +276,7 @@ class TicketController extends AbstractController
         }
 
         $ticket->addContributor($user);
+        $user->addTicket($ticket);
         $em->persist($ticket);
         $em->flush();
  
@@ -343,6 +345,8 @@ class TicketController extends AbstractController
         $message->setContent($data["message_content"]);
         $message->setCreatedAt(new \DateTime);
         $message->setTicket($ticket);
+        $message->setUser($user);
+        $ticket->addMessage($message);
         $em->persist($message);
         $em->flush();
         
