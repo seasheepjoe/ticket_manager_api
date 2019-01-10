@@ -110,6 +110,39 @@ class TicketController extends AbstractController
         ]);
     }
 
+     /**
+     * @Route("/tickets/remove/{id}", name="remove-ticket", methods={"GET"}, requirements={"id"="\d+"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function remove(Request $request, $id)
+    {
+        $user = $this->getUser();
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticketRepo = $this->getDoctrine()->getManager()->getRepository(Ticket::class);
+        $ticket = $ticketRepo->find($id);
+
+        if ($user === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "not_logged_in"
+            ]);
+        }
+
+        if ($ticket === null) {
+            return new JsonResponse([
+                "status" => "error",
+                "message" => "ticket_not_found"
+            ]);
+        }
+
+        $entityManager->remove($ticket);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            "status" => "success",
+        ]);
+    }
+
     /**
      * @Route("/tickets/contributors/remove", name="remove-contributor", methods={"POST"})
      * @IsGranted("ROLE_ADMIN")
