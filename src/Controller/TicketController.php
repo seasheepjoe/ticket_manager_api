@@ -16,6 +16,7 @@ class TicketController extends AbstractController
 {
     /**
      * @Route("/tickets", name="all-tickets", methods={"GET"})
+     * @IsGranted("ROLE_USER")
      */
     public function index(Request $request)
     {
@@ -43,6 +44,7 @@ class TicketController extends AbstractController
 
     /**
      * @Route("/tickets/new", name="new-ticket")
+     * @IsGranted("ROLE_USER")
      */
     public function new(Request $request)
     {
@@ -70,6 +72,7 @@ class TicketController extends AbstractController
 
     /**
      * @Route("/tickets/get/{id}", name="get-ticket", methods={"GET"}, requirements={"id"="\d+"})
+     * @IsGranted("ROLE_USER")
      */
     public function getTicket(Request $request, $id)
     {
@@ -266,6 +269,7 @@ class TicketController extends AbstractController
 
     /**
      * @Route("/tickets/messages/add", name="add-message", methods={"POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function addMessage(Request $request)
     {
