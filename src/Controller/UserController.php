@@ -22,11 +22,15 @@ class UserController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $userRepo = $entityManager->getRepository(User::class);
         
-        $users = $userRepo->findBy(['firstname' => $data['firstname']]);
-
+        $users = $userRepo->findBy(['firstname' => $data['fullname']]);
+        $usersArray = [];
+        foreach($users as $user) {
+            $usersArray[] = $user->getInfo();
+        }
+        
         return new JsonResponse([
             "status" => "success",
-            "users" => $users
+            "users" => $usersArray
         ]);
     }
 }
